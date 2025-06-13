@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Misión Matemática</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1607746882042-944635dfe10e');
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      background-color: rgba(0, 0, 0, 0.5);
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 12px;
+    }
+    .pregunta {
+      font-size: 28px;
+      margin-bottom: 20px;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .opciones button, #btnReintentar, #btnIniciar {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      color: #000;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .opciones button:hover, #btnReintentar:hover, #btnIniciar:hover {
+      transform: scale(1.1);
+      background-color: #ff9900;
+    }
+    .resultado {
+      font-size: 22px;
+      margin-top: 20px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Misión Matemática</h1>
+  <div id="inicio">
+    <button id="btnIniciar">🚀 Iniciar Juego</button>
+  </div>
+  <div class="pregunta" id="pregunta" style="display:none;"></div>
+  <div class="opciones" id="opciones"></div>
+  <div class="resultado" id="resultado"></div>
+  <button id="btnReintentar" style="display:none;">🔁 Reintentar</button>
+
+  <audio id="sonidoCorrecto">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c9c3bc3dfb.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sonidoIncorrecto">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7f34ed773.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sonidoVictoria">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_b167519d29.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const preguntas = [
+      {
+        texto: "¿Cuánto es 5 + 3?",
+        opciones: ["6", "8", "9"],
+        correcta: "8"
+      },
+      {
+        texto: "Resuelve: 12 - 4",
+        opciones: ["8", "6", "7"],
+        correcta: "8"
+      },
+      {
+        texto: "¿Cuánto es 6 × 7?",
+        opciones: ["42", "36", "48"],
+        correcta: "42"
+      },
+      {
+        texto: "Resuelve: x en 2x + 4 = 10",
+        opciones: ["3", "2", "4"],
+        correcta: "3"
+      }
+    ];
+
+    let indice = 0;
+    const inicioEl = document.getElementById("inicio");
+    const btnIniciar = document.getElementById("btnIniciar");
+    const preguntaEl = document.getElementById("pregunta");
+    const opcionesEl = document.getElementById("opciones");
+    const resultadoEl = document.getElementById("resultado");
+    const btnReintentar = document.getElementById("btnReintentar");
+    const sonidoCorrecto = document.getElementById("sonidoCorrecto");
+    const sonidoIncorrecto = document.getElementById("sonidoIncorrecto");
+    const sonidoVictoria = document.getElementById("sonidoVictoria");
+
+    btnIniciar.onclick = () => {
+      inicioEl.style.display = "none";
+      preguntaEl.style.display = "block";
+      mostrarPregunta();
+    };
+
+    function mostrarPregunta() {
+      const pregunta = preguntas[indice];
+      preguntaEl.textContent = pregunta.texto;
+      opcionesEl.innerHTML = "";
+      resultadoEl.textContent = "";
+      resultadoEl.classList.remove("visible");
+      btnReintentar.style.display = "none";
+
+      pregunta.opciones.forEach(opcion => {
+        const boton = document.createElement("button");
+        boton.textContent = opcion;
+        boton.onclick = () => verificarRespuesta(opcion);
+        opcionesEl.appendChild(boton);
+      });
+    }
+
+    function verificarRespuesta(respuesta) {
+      const correcta = preguntas[indice].correcta;
+      if (respuesta === correcta) {
+        sonidoCorrecto.play();
+        resultadoEl.textContent = "✅ ¡Correcto!";
+        resultadoEl.style.color = "#00ff00";
+        resultadoEl.classList.add("visible");
+        indice++;
+        if (indice < preguntas.length) {
+          setTimeout(mostrarPregunta, 1000);
+        } else {
+          setTimeout(() => {
+            sonidoVictoria.play();
+            preguntaEl.textContent = "🎉 ¡Has completado el juego!";
+            opcionesEl.innerHTML = "";
+            resultadoEl.textContent = "Bien hecho, matemático/a.";
+            resultadoEl.style.color = "#00ffff";
+            resultadoEl.classList.add("visible");
+          }, 1000);
+        }
+      } else {
+        sonidoIncorrecto.play();
+        resultadoEl.textContent = "❌ Incorrecto. ¡Intenta de nuevo!";
+        resultadoEl.style.color = "#ff4444";
+        resultadoEl.classList.add("visible");
+        btnReintentar.style.display = "inline-block";
+      }
+    }
+
+    btnReintentar.onclick = () => {
+      mostrarPregunta();
+    };
+  </script>
+</body>
+</html>
