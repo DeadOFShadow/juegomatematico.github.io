@@ -10,11 +10,12 @@
       background-image: url('https://images.unsplash.com/photo-1607746882042-944635dfe10e');
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       color: #fff;
       text-align: center;
       padding: 20px;
     }
-
     h1 {
       background-color: rgba(0, 0, 0, 0.5);
       display: inline-block;
@@ -22,7 +23,6 @@
       border-radius: 12px;
       font-size: 7vw;
     }
-
     .pregunta {
       font-size: 5vw;
       margin-bottom: 20px;
@@ -30,8 +30,7 @@
       padding: 10px;
       border-radius: 10px;
     }
-
-    .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar {
+    .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar, #btnReiniciar {
       font-size: 4vw;
       padding: 10px 20px;
       margin: 10px 5px;
@@ -42,12 +41,10 @@
       color: #000;
       transition: transform 0.3s ease, background-color 0.3s ease;
     }
-
-    .opciones button:hover, #btnReintentar:hover, #btnSiguiente:hover, #btnIniciar:hover {
+    .opciones button:hover, #btnReintentar:hover, #btnSiguiente:hover, #btnIniciar:hover, #btnReiniciar:hover {
       transform: scale(1.1);
       background-color: #ff9900;
     }
-
     .resultado {
       font-size: 4.5vw;
       margin-top: 20px;
@@ -55,42 +52,9 @@
       opacity: 0;
       transition: opacity 0.5s ease;
     }
-
     .visible {
       opacity: 1;
     }
-
-    #puntaje {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(0,0,0,0.5);
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-weight: bold;
-      color: #fff;
-      z-index: 1000;
-      font-size: 1.2rem;
-    }
-
-    #btnReiniciar {
-      background: linear-gradient(45deg, #ff6f00, #ffcc00);
-      color: #000;
-      font-weight: bold;
-      font-size: 4vw;
-      padding: 12px 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      margin-top: 20px;
-      display: none;
-    }
-
-    #btnReiniciar:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.4);
-    }
-
     @media (min-width: 768px) {
       h1 { font-size: 36px; }
       .pregunta { font-size: 28px; }
@@ -110,8 +74,8 @@
   <div>
     <button id="btnReintentar" style="display:none;">🔁 Reintentar</button>
     <button id="btnSiguiente" style="display:none;">⏭️ Siguiente</button>
+    <button id="btnReiniciar" style="display:none;">🔄 Reiniciar juego</button>
   </div>
-  <button id="btnReiniciar">🔄 Reiniciar juego</button>
 
   <audio id="sonidoCorrecto">
     <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c9c3bc3dfb.mp3" type="audio/mpeg">
@@ -146,7 +110,9 @@
     const resultadoEl = document.getElementById("resultado");
     const puntajeEl = document.createElement("div");
     puntajeEl.id = "puntaje";
-    document.body.appendChild(puntajeEl);
+    puntajeEl.style.marginTop = "10px";
+    puntajeEl.style.fontSize = "4vw";
+    document.body.insertBefore(puntajeEl, document.getElementById("btnReintentar").parentElement);
     const btnReintentar = document.getElementById("btnReintentar");
     const btnSiguiente = document.getElementById("btnSiguiente");
     const sonidoCorrecto = document.getElementById("sonidoCorrecto");
@@ -161,8 +127,8 @@
     };
 
     function mostrarPregunta() {
-      puntajeEl.textContent = `Puntaje: ${puntos} / ${preguntas.length}`;
       const pregunta = preguntas[indice];
+      puntajeEl.textContent = `Puntaje: ${puntos} / ${preguntas.length}`;
       preguntaEl.textContent = pregunta.texto;
       opcionesEl.innerHTML = "";
       resultadoEl.textContent = "";
@@ -188,6 +154,7 @@
         resultadoEl.style.color = "#00ff00";
         resultadoEl.classList.add("visible");
         btnSiguiente.style.display = "inline-block";
+        opcionesEl.querySelectorAll("button").forEach(btn => btn.disabled = true);
       } else {
         sonidoIncorrecto.play();
         resultadoEl.textContent = `❌ Incorrecto. La respuesta correcta era: ${correcta}`;
@@ -195,8 +162,8 @@
         resultadoEl.classList.add("visible");
         btnReintentar.style.display = "inline-block";
         btnSiguiente.style.display = "inline-block";
+        opcionesEl.querySelectorAll("button").forEach(btn => btn.disabled = true);
       }
-      opcionesEl.querySelectorAll("button").forEach(btn => btn.disabled = true);
     }
 
     btnReintentar.onclick = () => {
