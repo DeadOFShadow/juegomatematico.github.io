@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Misión Matemática</title>
   <style>
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
-      background-image: url('https://images.unsplash.com/photo-1607746882042-944635dfe10e');
+      background:
+        linear-gradient(rgba(0, 123, 255, 0.6), rgba(0, 50, 200, 0.6)),
+        url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
       color: #fff;
       text-align: center;
       padding: 20px;
+      margin: 0;
+      height: 100vh;
     }
     h1 {
       background-color: rgba(0, 0, 0, 0.5);
@@ -30,7 +31,7 @@
       padding: 10px;
       border-radius: 10px;
     }
-    .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar, #btnReiniciar {
+    .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar {
       font-size: 4vw;
       padding: 10px 20px;
       margin: 10px 5px;
@@ -41,7 +42,7 @@
       color: #000;
       transition: transform 0.3s ease, background-color 0.3s ease;
     }
-    .opciones button:hover, #btnReintentar:hover, #btnSiguiente:hover, #btnIniciar:hover, #btnReiniciar:hover {
+    .opciones button:hover, #btnReintentar:hover, #btnSiguiente:hover, #btnIniciar:hover {
       transform: scale(1.1);
       background-color: #ff9900;
     }
@@ -58,7 +59,7 @@
     @media (min-width: 768px) {
       h1 { font-size: 36px; }
       .pregunta { font-size: 28px; }
-      .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar, #btnReiniciar { font-size: 18px; }
+      .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar { font-size: 18px; }
       .resultado { font-size: 22px; }
     }
   </style>
@@ -74,17 +75,17 @@
   <div>
     <button id="btnReintentar" style="display:none;">🔁 Reintentar</button>
     <button id="btnSiguiente" style="display:none;">⏭️ Siguiente</button>
-    <button id="btnReiniciar" style="display:none;">🔄 Reiniciar juego</button>
   </div>
+  <button id="btnReiniciar" style="display:none;">🔄 Reiniciar juego</button>
 
   <audio id="sonidoCorrecto">
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c9c3bc3dfb.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c9c3bc3dfb.mp3" type="audio/mpeg" />
   </audio>
   <audio id="sonidoIncorrecto">
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7f34ed773.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7f34ed773.mp3" type="audio/mpeg" />
   </audio>
   <audio id="sonidoVictoria">
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_b167519d29.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_b167519d29.mp3" type="audio/mpeg" />
   </audio>
 
   <script>
@@ -110,9 +111,15 @@
     const resultadoEl = document.getElementById("resultado");
     const puntajeEl = document.createElement("div");
     puntajeEl.id = "puntaje";
-    puntajeEl.style.marginTop = "10px";
+    puntajeEl.style.position = "absolute";
+    puntajeEl.style.top = "10px";
+    puntajeEl.style.right = "10px";
+    puntajeEl.style.backgroundColor = "rgba(0,0,0,0.5)";
+    puntajeEl.style.padding = "10px";
+    puntajeEl.style.borderRadius = "10px";
     puntajeEl.style.fontSize = "4vw";
-    document.body.insertBefore(puntajeEl, document.getElementById("btnReintentar").parentElement);
+    document.body.appendChild(puntajeEl);
+
     const btnReintentar = document.getElementById("btnReintentar");
     const btnSiguiente = document.getElementById("btnSiguiente");
     const sonidoCorrecto = document.getElementById("sonidoCorrecto");
@@ -127,15 +134,14 @@
     };
 
     function mostrarPregunta() {
-      const pregunta = preguntas[indice];
       puntajeEl.textContent = `Puntaje: ${puntos} / ${preguntas.length}`;
+      const pregunta = preguntas[indice];
       preguntaEl.textContent = pregunta.texto;
       opcionesEl.innerHTML = "";
       resultadoEl.textContent = "";
       resultadoEl.classList.remove("visible");
       btnReintentar.style.display = "none";
       btnSiguiente.style.display = "none";
-      btnReiniciar.style.display = "none";
 
       pregunta.opciones.forEach(opcion => {
         const boton = document.createElement("button");
