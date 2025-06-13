@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Misión Matemática</title>
   <style>
     body {
@@ -13,23 +14,27 @@
       text-align: center;
       padding: 20px;
     }
+
     h1 {
       background-color: rgba(0, 0, 0, 0.5);
       display: inline-block;
       padding: 10px 20px;
       border-radius: 12px;
+      font-size: 7vw;
     }
+
     .pregunta {
-      font-size: 28px;
+      font-size: 5vw;
       margin-bottom: 20px;
       background-color: rgba(0, 0, 0, 0.4);
       padding: 10px;
       border-radius: 10px;
     }
-    .opciones button, #btnReintentar, #btnIniciar {
-      font-size: 18px;
+
+    .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar {
+      font-size: 4vw;
       padding: 10px 20px;
-      margin: 10px;
+      margin: 10px 5px;
       cursor: pointer;
       border: none;
       border-radius: 8px;
@@ -37,19 +42,60 @@
       color: #000;
       transition: transform 0.3s ease, background-color 0.3s ease;
     }
-    .opciones button:hover, #btnReintentar:hover, #btnIniciar:hover {
+
+    .opciones button:hover, #btnReintentar:hover, #btnSiguiente:hover, #btnIniciar:hover {
       transform: scale(1.1);
       background-color: #ff9900;
     }
+
     .resultado {
-      font-size: 22px;
+      font-size: 4.5vw;
       margin-top: 20px;
       font-weight: bold;
       opacity: 0;
       transition: opacity 0.5s ease;
     }
+
     .visible {
       opacity: 1;
+    }
+
+    #puntaje {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0,0,0,0.5);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      color: #fff;
+      z-index: 1000;
+      font-size: 1.2rem;
+    }
+
+    #btnReiniciar {
+      background: linear-gradient(45deg, #ff6f00, #ffcc00);
+      color: #000;
+      font-weight: bold;
+      font-size: 4vw;
+      padding: 12px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-top: 20px;
+      display: none;
+    }
+
+    #btnReiniciar:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    }
+
+    @media (min-width: 768px) {
+      h1 { font-size: 36px; }
+      .pregunta { font-size: 28px; }
+      .opciones button, #btnReintentar, #btnSiguiente, #btnIniciar, #btnReiniciar { font-size: 18px; }
+      .resultado { font-size: 22px; }
     }
   </style>
 </head>
@@ -61,7 +107,11 @@
   <div class="pregunta" id="pregunta" style="display:none;"></div>
   <div class="opciones" id="opciones"></div>
   <div class="resultado" id="resultado"></div>
-  <button id="btnReintentar" style="display:none;">🔁 Reintentar</button>
+  <div>
+    <button id="btnReintentar" style="display:none;">🔁 Reintentar</button>
+    <button id="btnSiguiente" style="display:none;">⏭️ Siguiente</button>
+  </div>
+  <button id="btnReiniciar">🔄 Reiniciar juego</button>
 
   <audio id="sonidoCorrecto">
     <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c9c3bc3dfb.mp3" type="audio/mpeg">
@@ -75,38 +125,34 @@
 
   <script>
     const preguntas = [
-      {
-        texto: "¿Cuánto es 5 + 3?",
-        opciones: ["6", "8", "9"],
-        correcta: "8"
-      },
-      {
-        texto: "Resuelve: 12 - 4",
-        opciones: ["8", "6", "7"],
-        correcta: "8"
-      },
-      {
-        texto: "¿Cuánto es 6 × 7?",
-        opciones: ["42", "36", "48"],
-        correcta: "42"
-      },
-      {
-        texto: "Resuelve: x en 2x + 4 = 10",
-        opciones: ["3", "2", "4"],
-        correcta: "3"
-      }
+      { texto: "¿Cuánto es 5 + 3?", opciones: ["6", "8", "9"], correcta: "8" },
+      { texto: "Resuelve: 12 - 4", opciones: ["8", "6", "7"], correcta: "8" },
+      { texto: "¿Cuánto es 6 × 7?", opciones: ["42", "36", "48"], correcta: "42" },
+      { texto: "Resuelve: x en 2x + 4 = 10", opciones: ["3", "2", "4"], correcta: "3" },
+      { texto: "¿Cuánto es 9 ÷ 3?", opciones: ["2", "3", "6"], correcta: "3" },
+      { texto: "¿Cuánto es 15 + 6?", opciones: ["21", "20", "19"], correcta: "21" },
+      { texto: "Resuelve: 7 × 5", opciones: ["30", "35", "40"], correcta: "35" },
+      { texto: "¿Cuánto es 100 - 45?", opciones: ["55", "65", "75"], correcta: "55" },
+      { texto: "Resuelve: (3 + 2) × 4", opciones: ["20", "16", "12"], correcta: "20" },
+      { texto: "¿Cuánto es 81 ÷ 9?", opciones: ["9", "8", "7"], correcta: "9" }
     ];
 
     let indice = 0;
+    let puntos = 0;
     const inicioEl = document.getElementById("inicio");
     const btnIniciar = document.getElementById("btnIniciar");
     const preguntaEl = document.getElementById("pregunta");
     const opcionesEl = document.getElementById("opciones");
     const resultadoEl = document.getElementById("resultado");
+    const puntajeEl = document.createElement("div");
+    puntajeEl.id = "puntaje";
+    document.body.appendChild(puntajeEl);
     const btnReintentar = document.getElementById("btnReintentar");
+    const btnSiguiente = document.getElementById("btnSiguiente");
     const sonidoCorrecto = document.getElementById("sonidoCorrecto");
     const sonidoIncorrecto = document.getElementById("sonidoIncorrecto");
     const sonidoVictoria = document.getElementById("sonidoVictoria");
+    const btnReiniciar = document.getElementById("btnReiniciar");
 
     btnIniciar.onclick = () => {
       inicioEl.style.display = "none";
@@ -115,12 +161,15 @@
     };
 
     function mostrarPregunta() {
+      puntajeEl.textContent = `Puntaje: ${puntos} / ${preguntas.length}`;
       const pregunta = preguntas[indice];
       preguntaEl.textContent = pregunta.texto;
       opcionesEl.innerHTML = "";
       resultadoEl.textContent = "";
       resultadoEl.classList.remove("visible");
       btnReintentar.style.display = "none";
+      btnSiguiente.style.display = "none";
+      btnReiniciar.style.display = "none";
 
       pregunta.opciones.forEach(opcion => {
         const boton = document.createElement("button");
@@ -133,33 +182,58 @@
     function verificarRespuesta(respuesta) {
       const correcta = preguntas[indice].correcta;
       if (respuesta === correcta) {
+        puntos++;
         sonidoCorrecto.play();
         resultadoEl.textContent = "✅ ¡Correcto!";
         resultadoEl.style.color = "#00ff00";
         resultadoEl.classList.add("visible");
-        indice++;
-        if (indice < preguntas.length) {
-          setTimeout(mostrarPregunta, 1000);
-        } else {
-          setTimeout(() => {
-            sonidoVictoria.play();
-            preguntaEl.textContent = "🎉 ¡Has completado el juego!";
-            opcionesEl.innerHTML = "";
-            resultadoEl.textContent = "Bien hecho, matemático/a.";
-            resultadoEl.style.color = "#00ffff";
-            resultadoEl.classList.add("visible");
-          }, 1000);
-        }
+        btnSiguiente.style.display = "inline-block";
       } else {
         sonidoIncorrecto.play();
-        resultadoEl.textContent = "❌ Incorrecto. ¡Intenta de nuevo!";
+        resultadoEl.textContent = `❌ Incorrecto. La respuesta correcta era: ${correcta}`;
         resultadoEl.style.color = "#ff4444";
         resultadoEl.classList.add("visible");
         btnReintentar.style.display = "inline-block";
+        btnSiguiente.style.display = "inline-block";
       }
+      opcionesEl.querySelectorAll("button").forEach(btn => btn.disabled = true);
     }
 
     btnReintentar.onclick = () => {
+      mostrarPregunta();
+    };
+
+    btnSiguiente.onclick = () => {
+      indice++;
+      if (indice < preguntas.length) {
+        mostrarPregunta();
+      } else {
+        sonidoVictoria.play();
+        let mensaje = "";
+        if (puntos >= 9) {
+          mensaje = "🎯 ¡Excelente trabajo!";
+        } else if (puntos >= 7) {
+          mensaje = "👍 ¡Muy bien!";
+        } else {
+          mensaje = "📚 Sigue practicando.";
+        }
+        preguntaEl.textContent = `🎉 ¡Has completado el juego!
+Tu puntaje final fue: ${puntos} de ${preguntas.length}
+${mensaje}`;
+        opcionesEl.innerHTML = "";
+        resultadoEl.textContent = "Bien hecho, matemático/a.";
+        resultadoEl.style.color = "#00ffff";
+        resultadoEl.classList.add("visible");
+        btnReintentar.style.display = "none";
+        btnSiguiente.style.display = "none";
+        btnReiniciar.style.display = "inline-block";
+      }
+    };
+
+    btnReiniciar.onclick = () => {
+      indice = 0;
+      puntos = 0;
+      btnReiniciar.style.display = "none";
       mostrarPregunta();
     };
   </script>
